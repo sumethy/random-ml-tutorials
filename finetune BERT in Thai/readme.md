@@ -59,6 +59,10 @@ root
 
 ### 3.3 ก๊อป vocab.txt ไปไว้ที่ `finetuned_dir`
 ### 3.4 ก๊อป /bert_base_th/bert_config.json ไปไว้ที่ `finetuned_dir`
+โฟล์เดอร์ของโมเดลที่พร้อมจะ deploy จะมีไฟล์ดังต่อไปนี้
+
+![ready-for-deploy](https://github.com/sumethy/random-ml-tutorials/blob/master/finetune%20BERT%20in%20Thai/images/ready-for-deploy.png)
+
 
 ## 4. Deploy ด้วย bert-as-service
 เปิด terminal/cmd รัน `bert-serving-start -model_dir <finetuned_dir>` 
