@@ -72,4 +72,4 @@ root
 ถ้าจะใช้โมเดลจากใน `finetuned_dir` ทำ inference โดยตรงเลยนั้นใช้ bert-as-service ไม่ได้ เพราะ output ของ bert-as-service เป็น hidden layer ไม่ใช่ softmax ตรงนี้เดี๋ยวมาอัปเดททีหลัง
 
 ## 5. ปรับใช้กับ classification problem อื่นๆ
-สำหรับการนำไปใช้กับปัญหาอื่นๆที่ไม่ใช่ Wongnai นั้นต้อง implement class `DataProcessor` ใหม่เอา ให้ศึกษาตัวอย่างได้จาก `WongnaiProcessor` ใน `https://github.com/ThAIKeras/bert/run_classifier.py` บรรทัดที่ 367 ส่วนปัญญาประเภทอื่นๆเลยเช่น question answer เดี๋ยวมาอัปเดท
+สำหรับการนำไปใช้กับปัญหาอื่นๆที่ไม่ใช่ Wongnai นั้นต้อง implement class `DataProcessor` ใหม่เอา ให้ศึกษาตัวอย่างได้จาก `WongnaiProcessor` ใน `https://github.com/ThAIKeras/bert/run_classifier.py` บรรทัดที่ 367 ส่วนปัญหาประเภทอื่นๆเลยเช่น question answer เดี๋ยวมาอัปเดท
