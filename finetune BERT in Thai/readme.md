@@ -70,3 +70,6 @@ root
 ตอนนี้สามารถใช้โมเดลใน `finetuned_dir` เป็น encoder ได้แล้ว (วิธีการ encode ดูจาก https://github.com/hanxiao/bert-as-service) การจะนำไปเทรน classifier ให้ encode ดาต้าทั้งหมดด้วย bert-as-service แล้วค่อยเอาไปเทรน dense+softmax เป็นโมเดลแยกเอา พอจะ inference ก็เอา string ไปผ่าน bert-as-service ก่อน พอได้ hidden state vector ออกมาแล้วก็ค่อยเอาไปผ่านโมเดล classifier อีกรอบ
 
 ถ้าจะใช้โมเดลจากใน `finetuned_dir` ทำ inference โดยตรงเลยนั้นใช้ bert-as-service ไม่ได้ เพราะ output ของ bert-as-service เป็น hidden layer ไม่ใช่ softmax ตรงนี้เดี๋ยวมาอัปเดททีหลัง
+
+## 5. ปรับใช้กับ classification problem อื่นๆ
+สำหรับการนำไปใช้กับปัญหาอื่นๆที่ไม่ใช่ Wongnai นั้นต้อง implement class `DataProcessor` ใหม่เอา ให้ศึกษาตัวอย่างได้จาก `WongnaiProcessor` ใน `https://github.com/ThAIKeras/bert/run_classifier.py` บรรทัดที่ 367 ส่วนปัญญาประเภทอื่นๆเลยเช่น question answer เดี๋ยวมาอัปเดท
