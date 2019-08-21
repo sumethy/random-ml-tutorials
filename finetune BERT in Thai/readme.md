@@ -1,6 +1,6 @@
 # วิธีการ finetune BERT สำหรับภาษาไทย
 
-วิธีการ finetune model BERT สำหรับภาษาไทย โดยใช้ repo อันนี้ https://github.com/ThAIKeras/bert เสร็จแล้วนำไป deploy ด้วย bert-as-service https://github.com/hanxiao/bert-as-service.git
+วิธีการ finetune model BERT สำหรับภาษาไทย โดยใช้ repo อันนี้ https://github.com/ThAIKeras/bert เสร็จแล้วนำไป deploy ด้วย bert-as-service https://github.com/hanxiao/bert-as-service.git โดยการ finetune ใช้ Colab แล้วโหลดโมเดลกลับมา deploy บน local
 
 ## 1. Setup
 
@@ -20,4 +20,5 @@ https://drive.google.com/file/d/1F7pCgt3vPlarI9RxKtOZUrC_67KMNQ1W/
 ### 1.3 Upload to GCP
 ใน tutorial อันนี้จะรันบน Colab ดังนั้นให้ upload file ที่โหลดมาจากข้อ (bert_base_th.zip, th_wiki_bpe.zip) 1.2 ใส่ bucket บน GCP เพื่อให้โหลดใส่ VM Colab ได้อย่างรวดเร็ว
 
-### 1.4 Finetune
+## 2 Finetune
+เปิดไฟล์ `bert_wongnai_gpu.ipynb` บน Colab
