@@ -27,7 +27,7 @@ BPE (byte pair encoding) คือ tokenizer ที่โมเดลพวก t
 ## 2 Finetune
 
 ### 2.1 Run finetune
-เปิดไฟล์ `bert_wongnai_gpu.ipynb` บน Colab รันจนจบ (ใช้เวลาประมาณ 1 ชม.) จะได้ไฟล์ output_last.zip อยู่บน bucket GCP ให้ download ไฟล์นั้นกลับลงมาที่ local จากนั้นแตกไฟล์ออกมาไว้ที่ใดก็ได้ ต่อไปนี้จะเรียกไฟล์เดอร์ที่เพิ่งแตกออกมานี้ว่า `finetuned_dir`
+เปิดไฟล์ `bert_wongnai_gpu.ipynb` บน Colab ให้แก้ตรงที่เป็น `<YOUR_BUCKET_NAME>` ใส่ชื่อ bucket GCP จริง จากนั้นรันไฟล์จนจบ (ใช้เวลาประมาณ 1 ชม.) จะได้ไฟล์ output_last.zip อยู่บน bucket GCP ให้ download ไฟล์นั้นกลับลงมาที่ local จากนั้นแตกไฟล์ออกมาไว้ที่ใดก็ได้ ต่อไปนี้จะเรียกไฟล์เดอร์ที่เพิ่งแตกออกมานี้ว่า `finetuned_dir`
 
 ### 2.2 แก้ชื่อไฟล์ของโมเดล
 เปิดโฟลเดอร์ `finetuned_dir` แล้วให้แก้ชื่อไฟล์ โดยเติม *bert_* ข้างหน้า *model* ทุกไฟล์ เช่น `model.ckpt.data-00000-of-00001` ให้แก้ชื่อไฟล์เป็น `bert_model.ckpt.data-00000-of-00001` เป็นต้น
