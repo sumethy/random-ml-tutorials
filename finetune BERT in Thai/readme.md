@@ -25,7 +25,7 @@ https://drive.google.com/file/d/1F7pCgt3vPlarI9RxKtOZUrC_67KMNQ1W/
 ## 2 Finetune
 
 ### 2.1 Run finetune
-เปิดไฟล์ `bert_wongnai_gpu.ipynb` บน Colab รันจนจบ จะได้ไฟล์ output_last.zip อยู่บน bucket GCP ให้ download ไฟล์นั้นกลับลงมาที่ local จากนั้นแตกไฟล์ออกมาไว้ที่ใดก็ได้ ต่อไปนี้จะเรียกไฟล์เดอร์ที่เพิ่งแตกออกมานี้ว่า `finetuned_dir`
+เปิดไฟล์ `bert_wongnai_gpu.ipynb` บน Colab รันจนจบ (ใช้เวลาประมาณ 1 ชม.) จะได้ไฟล์ output_last.zip อยู่บน bucket GCP ให้ download ไฟล์นั้นกลับลงมาที่ local จากนั้นแตกไฟล์ออกมาไว้ที่ใดก็ได้ ต่อไปนี้จะเรียกไฟล์เดอร์ที่เพิ่งแตกออกมานี้ว่า `finetuned_dir`
 
 ### 2.2 แก้ชื่อไฟล์ของโมเดล
 เปิดโฟลเดอร์ `finetuned_dir` แล้วให้แก้ชื่อไฟล์ โดยเติม *bert_* ข้างหน้า *model* ทุกไฟล์ เช่น `model.ckpt.data-00000-of-00001` ให้แก้ชื่อไฟล์เป็น `bert_model.ckpt.data-00000-of-00001` เป็นต้น
@@ -57,3 +57,10 @@ root
 
 ### 3.3 ก๊อป vocab.txt ไปไว้ที่ `finetuned_dir`
 ### 3.4 ก๊อป /bert_base_th/bert_config.json ไปไว้ที่ `finetuned_dir`
+
+## 4. Deploy ด้วย bert-as-service
+เปิด terminal/cmd รัน `bert-serving-start -model_dir <finetuned_dir>` 
+
+ตอนนี้สามารถใช้โมเดลใน `finetuned_dir` เป็น encoder ได้แล้ว (วิธีการ encode ดูจาก https://github.com/hanxiao/bert-as-service) การจะนำไปเทรน classifier ให้ encode ดาต้าทั้งหมดด้วย bert-as-service แล้วค่อยเอาไปเทรน dense+softmax เป็นโมเดลแยกเอา พอจะ inference ก็เอา string ไปผ่าน bert-as-service ก่อน พอได้ hidden state vector ออกมาแล้วก็ค่อยเอาไปผ่านโมเดล classifier อีกรอบ
+
+ถ้าจะใช้โมเดลจากใน `finetuned_dir` ทำ inference โดยตรงเลยนั้นใช้ bert-as-service ไม่ได้ เพราะ output ของ bert-as-service เป็น hidden layer ไม่ใช่ softmax ตรงนี้เดี๋ยวมาอัปเดททีหลัง
