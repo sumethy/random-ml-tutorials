@@ -24,10 +24,14 @@ BPE (byte pair encoding) คือ tokenizer ที่โมเดลพวก t
 ### 1.3 Upload to GCP
 ใน tutorial อันนี้จะรันบน Colab ดังนั้นให้ upload file ที่โหลดมาจากข้อ (bert_base_th.zip, th_wiki_bpe.zip) 1.2 ใส่ bucket บน GCP เพื่อให้โหลดใส่ VM Colab ได้อย่างรวดเร็ว เสร็จแล้วให้แตกไฟล์ bert_base_th.zip, th_wiki_bpe.zip ไว้ใน local ด้วย
 
+(สำหรับ TPU) ให้อัปโหลดโฟลเดอร์ที่แตกไฟล์แล้ว (bert_base_th/, th_wiki_bpe/) ขึ้นไปบน bucket แทนที่จะเป็นไฟล์ .zip การจะเทรนด้วย TPU นั้นทั้งโมเดลและ output directory (ที่เอาไว้เซฟไฟล์ checkpoint) ต้องอยู่บน GCP bucket ทั้งคู่ โค้ดเทรนด้วย TPU สามารถดึงข้อมูลจาก bucket ได้โดยตรงโดยที่ไม่ต้องโหลดใส่ VM ก่อน แต่ว่าบน bucket ไม่สามารถแตกไฟล์ .zip ได้ ดังนั้นจึงต้องแตกไฟล์ก่อนแล้วค่อยอัปโหลดไปทั้งโฟลเดอร์ อัปโหลดเสร็จแล้วให้สร้างโฟลเดอร์ใหม่ว่างๆไว้บน bucket ด้วยเพื่อเป็น output directory เวลาใช้ TPU
+
 ## 2 Finetune
 
 ### 2.1 Run finetune
 เปิดไฟล์ `bert_wongnai_gpu.ipynb` บน Colab ให้แก้ตรงที่เป็น `<YOUR_BUCKET_NAME>` ใส่ชื่อ bucket GCP จริง จากนั้นรันไฟล์จนจบ (ใช้เวลาประมาณ 1 ชม.) จะได้ไฟล์ output_last.zip อยู่บน bucket GCP ให้ download ไฟล์นั้นกลับลงมาที่ local จากนั้นแตกไฟล์ออกมาไว้ที่ใดก็ได้ ต่อไปนี้จะเรียกไฟล์เดอร์ที่เพิ่งแตกออกมานี้ว่า `finetuned_dir`
+
+(สำหรับ TPU) ให้เปลี่ยนเป็นไฟล์ `bert_wongnai_tpu.ipynb` แทน แก้ตรงที่เป็น `<YOUR_BUCKET_NAME>` ใส่ชื่อ bucket GCP จริง เทรนเสร็จแล้วให้ไปที่ bucket/<output_directory> ที่สร้างไว้จากขั้นตอนที่ 1.3 แล้ว download ไฟล์ model.ckpt-XXXX.* กลับมาที่ local โดย XXXX ให้เลือกอันที่เลขมากที่สุด เอาไปเก็บไว้ที่ `finetuned_dir` 
 
 ### 2.2 แก้ชื่อไฟล์ของโมเดล
 เปิดโฟลเดอร์ `finetuned_dir` แล้วให้แก้ชื่อไฟล์ โดยเติม *bert_* ข้างหน้า *model* ทุกไฟล์ เช่น `model.ckpt.data-00000-of-00001` ให้แก้ชื่อไฟล์เป็น `bert_model.ckpt.data-00000-of-00001` เป็นต้น
