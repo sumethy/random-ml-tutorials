@@ -19,6 +19,8 @@ https://drive.google.com/open?id=1J3uuXZr_Se_XIFHj7zlTJ-C9wzI9W_ot
 
 https://drive.google.com/file/d/1F7pCgt3vPlarI9RxKtOZUrC_67KMNQ1W/
 
+BPE (byte pair encoding) คือ tokenizer ที่โมเดลพวก transformer (BERT, XLNET, GPT1/2) ใช้กัน หลักการคือมองสตริงเป็น unicode หลายๆตัวมาต่อกัน ข้อดีคือใช้ได้กับทุกภาษาโดยไม่ต้องมี algorithm แยกสำหรับแต่ละภาษา ส่วน sentencepiece คือการ implement BPE ให้เร็ว สามาอ่านเพิ่มเติมได้จาก https://medium.com/@makcedward/how-subword-helps-on-your-nlp-model-83dd1b836f46
+
 ### 1.3 Upload to GCP
 ใน tutorial อันนี้จะรันบน Colab ดังนั้นให้ upload file ที่โหลดมาจากข้อ (bert_base_th.zip, th_wiki_bpe.zip) 1.2 ใส่ bucket บน GCP เพื่อให้โหลดใส่ VM Colab ได้อย่างรวดเร็ว เสร็จแล้วให้แตกไฟล์ bert_base_th.zip, th_wiki_bpe.zip ไว้ใน local ด้วย
 
