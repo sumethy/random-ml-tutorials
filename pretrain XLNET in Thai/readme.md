@@ -157,7 +157,7 @@ python train.py \
 	--use_tpu=True
 ```
 
-โปรดสังเกต `seq_len`, `reuse_len`, `mask_alpha`, `mask_beta`, `num_predict`, `uncased`, `bi_data` ตรงกันเป๊ะกับตอนสร้าง tfrecord ต้องตรงกันนะครับไม่งั้น error แน่ๆ ส่วน `tpu` ให้ก๊อปมาจาก `TPU_ADDRESS` ในขั้นตอนที่แล้ว option อื่นๆเป็นโครงสร้างของโมเดลเช่นจำนวนเลเยอร์ และพวก hyperparameter ในการเทรน โครงสร้างโมเดลนี้จะประมาณขนาดเดียวกันกับ xlnet-base เลยยกเว้นจำนวน attention head เหลือ 8 จาก 12 เพราะว่าแรมไม่พอ ขนาด TPU นะเนี่ย
+โปรดสังเกต `train_batch_size` จะเท่ากับ `bsz_per_host` ตอนสร้าง tfrecord นอกจากนี้ `seq_len`, `reuse_len`, `mask_alpha`, `mask_beta`, `num_predict`, `uncased`, `bi_data` ก็จะตรงกันเป๊ะกับตอนสร้าง tfrecord เช่นเดียวกัน ต้องตรงกันนะครับไม่งั้น error แน่ๆ ส่วน `tpu` ให้ก๊อปมาจาก `TPU_ADDRESS` ในขั้นตอนที่แล้ว option อื่นๆเป็นโครงสร้างของโมเดลเช่นจำนวนเลเยอร์ และพวก hyperparameter ในการเทรน โครงสร้างโมเดลนี้จะประมาณขนาดเดียวกันกับ xlnet-base เลยยกเว้นจำนวน attention head เหลือ 8 จาก 12 เพราะว่าแรมไม่พอ ขนาด TPU นะเนี่ย
 
 และสังเกตตรง `record_info_dir` มันเป็น local path ไปหาโฟลเดอร์ที่เราสร้าง tfrecord เอาไว้ อันนี้ต้องเป็น path local นะ ถึงแม้ว่าเราจะอัปโหลดดาต้าไปไว้บน bucket แล้วก็ตาม ดูตรงบรรทัดที่ 45 ใน `train.py` เค้าจะเขียนไว้เลยว่า "Path to local directory containing `record_info-lm.json`" ก็คือไอ้ไฟล์ชื่อ `record_info-train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.json` นั้นเอง ไฟล์ .json อันนี้ต้องอยู่ใน local ส่วนไฟล์ .tfrecords อ่ะต้องไปอยู่บน bucket นั่นแหละครับ debug กันเป็นวันๆ ก็ไอ้ตรงนี้แหละ T_T
 
