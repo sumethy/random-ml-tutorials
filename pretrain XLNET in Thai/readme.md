@@ -89,5 +89,71 @@ tf_record_out\
 
 ส่วน `data_utils.py` ให้ comment บรรทัด 828-833 ออก (อันนี้แปลกใจว่าไม่มี issue ใน Github สงสัยไม่มีใครเทรนเองบน TPU 555) เรื่องของเรื่องคือมันดันไปเอา local path ของ tfrecord กลับมาใช้แทนที่จะเป็นอันที่เราแก้ไขเป็น bucket path ใน json ตะกี้นี้แล้ว (เพื่ออะไร ไม่เข้าใจเหมือนกัน) ทำให้เกิด error "[local] filesystem not implemented" อีกแล้ว ดังนั้นเม้นท์มันออกไปโลด
 
-## 3.2 หา TPU
+## 3.2 หาที่อยู่ของ TPU
+อย่าลืมเปลี่ยน runtime type เป็น TPU นะจ๊ะ เสร็จแล้วก็รัน cell ต่อไปนี้ (ก๊อปมาจากตัวอย่าง TPU ของ Google เอง)
+
+```
+import os
+import datetime
+import json
+import os
+import pprint
+import random
+import string
+import sys
+import tensorflow as tf
+assert 'COLAB_TPU_ADDR' in os.environ, 'ERROR: Not connected to a TPU runtime; please see the first cell in this notebook for instructions!'
+TPU_ADDRESS = 'grpc://' + os.environ['COLAB_TPU_ADDR']
+print('TPU address is', TPU_ADDRESS) # copy the TPU address to the cell below
+
+from google.colab import auth
+auth.authenticate_user()
+with tf.Session(TPU_ADDRESS) as session:
+  print('TPU devices:')
+  pprint.pprint(session.list_devices())
+
+  # Upload credentials to TPU.
+  with open('/content/adc.json', 'r') as f:
+    auth_info = json.load(f)
+  tf.contrib.cloud.configure_gcs(session, credentials=auth_info)
+  # Now credentials are set for all future sessions on this TPU.
+```
+สิ่งที่เราต้องการคือสตริง `TPU_ADDRESS` ที่จะใช้ตอนเทรน
+
+## 3.3 เทรน
+คำสั่งเทรน
+```
+python train.py \
+	--record_info_dir=../tf_record_out/tfrecords \
+	--model_dir='gs://<bucket_name>/xlnet' \
+	--train_batch_size=32 \
+	--num_core_per_host=8 \
+	--seq_len=512 \
+	--reuse_len=256 \
+	--mem_len=384 \
+	--perm_size=256 \
+	--n_layer=12 \
+	--d_model=768 \
+	--d_embed=768 \
+	--n_head=8 \
+	--d_head=64 \
+	--d_inner=3072 \
+	--mask_alpha=6 \
+	--mask_beta=1 \
+	--num_predict=85 \
+	--uncased=False \
+	--bi_data=True \
+	--untie_r=True \
+	--train_steps=2000000 \
+	--save_steps=20000 \
+	--warmup_steps=20000 \
+	--max_save=20 \
+	--weight_decay=0.01 \
+	--adam_epsilon=1e-6 \
+	--learning_rate=1e-4 \
+	--dropout=0.1 \
+	--dropatt=0.1 \
+	--tpu='grpc://10.27.119.98:8470' \  (copy from TPU_ADDRESS)
+	--use_tpu=True
+```
 
