@@ -13,7 +13,7 @@
 
 ลง sentencepiece: `pip install sentencepiece`
 
-เซฟโค้ดด้านล่างนี้เป็น .py อย่าลืมเปลี่ยน --input ให้ตรงกับที่ๆเก็บไฟล์ `thaiwikitext_sentseg.txt` ไว้แล้วก็รัน บนโน๊คบุคก็ได้เพราะว่าไม่ต้องใช้ GPU พอรันจบแล้วจะได้ไฟล์ออกมาสองไฟล์ `thaiwiki.model` และ `thaiwiki.vocab` สองไฟล์นี้คือ sentencepiece model ที่จะใช้ในขั้นตอนต่อไป
+เซฟโค้ดด้านล่างนี้เป็น .py อย่าลืมเปลี่ยน --input ให้ตรงกับที่ๆเก็บไฟล์ `thaiwikitext_sentseg.txt` ไว้แล้วก็รัน พอจบแล้วจะได้ไฟล์ออกมาสองไฟล์ `thaiwiki.model` และ `thaiwiki.vocab` สองไฟล์นี้คือ sentencepiece model ที่จะใช้ในขั้นตอนต่อไป
 ```
 import sentencepiece as spm
 spm.SentencePieceTrainer.Train('--input=preprocessed_thaiwikitext/thaiwikitext_sentseg.txt \
