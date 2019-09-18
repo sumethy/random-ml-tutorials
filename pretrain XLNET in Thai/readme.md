@@ -73,4 +73,21 @@ tf_record_out\
 ```
 {"filenames": ["../tf_record_out/tfrecords/train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.tfrecords"], "num_batch": 13329}
 ```
-ฟิวด์ `filenames` เป็นตัวบอกว่าไฟล์ tfrecord ของเราอยู่ตรงไหน ซึ่งก็ตรงกับ option `--save_dir` จากข้อ 2.1 แต่ช้าก่อน เพราะว่ามันเป็น path local (local หมายถึงใน VM Colab นะ) ดังนั้นถ้าเราก๊อปปี้ใส่ bucket ไปทั้งๆแบบนี้ สิ่งที่จะเกิดขึ้นคือมันจะเกิด error ว่า "[local] filesystem not implemented" เพราะว่า TPU ไม่สามารถอ่านไฟล์ใน local ได้ อ่านได้จากใน bucket เท่านั้น
+
+ฟิวด์ `filenames` เป็นตัวบอกว่าไฟล์ tfrecord ของเราอยู่ตรงไหน ซึ่งก็ตรงกับ option `--save_dir` จากข้อ 2.1 แต่ช้าก่อน เพราะว่ามันเป็น path local (local หมายถึงใน VM Colab นะ) ดังนั้นถ้าเราอัปโหลดใส่ bucket ไปทั้งๆแบบนี้ สิ่งที่จะเกิดขึ้นคือมันจะเกิด error ว่า "[local] filesystem not implemented" เพราะว่า TPU ไม่สามารถอ่านไฟล์ใน local ได้ อ่านได้จากใน bucket เท่านั้น ดังนั้นเราจะต้องแก้เป็นแบบนี้ก่อน (ไม่สามารถแก้ไขไฟล์บน Colab โดยตรงได้ ต้องโหลดลงมาที่เครื่องเราก่อน ลบไฟล์อันบน VM ทิ้ง แก้ไขที่เครื่องเราแล้วอัปโหลดกลับขึ้นไป)
+
+```
+{"filenames": ["gs://<bucket_name>/tf_record_out/tfrecords/train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.tfrecords"], "num_batch": 13329}
+```
+
+คือเปลี่ยน path ให้เป็น path บน bucket นั่นเอง แก้ไฟล์ให้เรียบร้อยใน local ก่อนแล้วค่อยอัปโหลดใส่ bucket ไปทั้งโฟลเดอร์ `tf_record_out` เลยครับ ส่วนโฟล์เดอร์บน local อย่าลบต้องเก็บไว้สำหรับตอนเทรน
+
+## 3.1 เตรียมพร้อมสำหรับการเทรน
+ยังครับ ยังเทรนไม่ได้ เราจะต้องแก้ไขไฟล์ใน repo xlnel บน VM อีกสองไฟล์ ก็คือ `modeling.py` และ `data_utils.py` วิธีที่ง่ายที่สุดคือ clone repo ไว้ที่เครื่องเราแล้วแก้ไขในเครื่องเราเลย ลบอันที่อยู่ใน VM ทิ้งแล้วอัปโหลดอันที่แก้ไขแล้วขึ้นไปแทน
+
+สำหรับ `modeling.py` ให้ comment บรรทัดที่ 236 ออก อันนี้เค้า assert ว่า batch size ต้องหารสองลงตัวแต่มันเป็นบั๊ก (https://github.com/zihangdai/xlnet/issues/132) ก็ comment ทิ้งเลยเพราะว่า batch size เราเป็น 32 อยู่แล้ว
+
+ส่วน `data_utils.py` ให้ comment บรรทัด 828-833 ออก (อันนี้แปลกใจว่าไม่มี issue ใน Github สงสัยไม่มีใครเทรนเองบน TPU 555) เรื่องของเรื่องคือมันดันไปเอา local path ของ tfrecord กลับมาใช้แทนที่จะเป็นอันที่เราแก้ไขเป็น bucket path ใน json ตะกี้นี้แล้ว (เพื่ออะไร ไม่เข้าใจเหมือนกัน) ทำให้เกิด error "[local] filesystem not implemented" อีกแล้ว ดังนั้นเม้นท์มันออกไปโลด
+
+## 3.2 หา TPU
+
