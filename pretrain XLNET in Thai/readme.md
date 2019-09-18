@@ -5,15 +5,15 @@
 
 ## 1.1 Get and prepare training data
 
-download training data (วิกิไทยที่คลีนเรียบร้อยแล้ว) `https://drive.google.com/file/d/1QZSOpikO6Qc02gRmyeb_UiRLtTmUwGz1/view?usp=sharing`
+โหลดดาต้า (วิกิไทยที่คลีนเรียบร้อยแล้ว) `https://drive.google.com/file/d/1QZSOpikO6Qc02gRmyeb_UiRLtTmUwGz1/view?usp=sharing`
 
-แตกไฟล์ preprocessed_thaiwikitext.zip ที่โหลดมา เปลี่ยนชื่อไฟล์ thaiwikitext_sentseg ข้างในให้เป็น .txt แล้วลบอีกไฟล์นึง (.xml) ทิ้งไป
+แตกไฟล์ preprocessed_thaiwikitext.zip ที่โหลดมา เปลี่ยนชื่อไฟล์ `thaiwikitext_sentseg` ข้างในให้เป็น .txt แล้วลบอีกไฟล์นึง (.xml) ทิ้งไป
 
 ## 1.2 Train sentencepiece model
 
-Install sentencepiece: `pip install sentencepiece`
+ลง sentencepiece: `pip install sentencepiece`
 
-เซฟโค้ดด้านล่างนี้เป็น .py อย่าลืมเปลี่ยน --input ให้ตรงกับที่ๆเก็บไฟล์ `thaiwikitext_sentseg.txt` ไว้ รันบนโน๊คบุคก็ได้เพราะว่าไม่ต้องใช้ GPU พอรันจบแล้วจะได้ไฟล์ออกมาสองไฟล์ `thaiwiki.model` และ `thaiwiki.vocab` สองไฟล์นี้คือ sentencepiece model ที่จะใช้ในขั้นตอนต่อไป
+เซฟโค้ดด้านล่างนี้เป็น .py อย่าลืมเปลี่ยน --input ให้ตรงกับที่ๆเก็บไฟล์ `thaiwikitext_sentseg.txt` ไว้แล้วก็รัน บนโน๊คบุคก็ได้เพราะว่าไม่ต้องใช้ GPU พอรันจบแล้วจะได้ไฟล์ออกมาสองไฟล์ `thaiwiki.model` และ `thaiwiki.vocab` สองไฟล์นี้คือ sentencepiece model ที่จะใช้ในขั้นตอนต่อไป
 ```
 import sentencepiece as spm
 spm.SentencePieceTrainer.Train('--input=preprocessed_thaiwikitext/thaiwikitext_sentseg.txt \
@@ -23,9 +23,9 @@ spm.SentencePieceTrainer.Train('--input=preprocessed_thaiwikitext/thaiwikitext_s
 ```
 ## 2.1 Create tfrecord
 
-clone xlnet repo: git clone https://github.com/zihangdai/xlnet.git
+clone xlnet repo: git clone https://github.com/zihangdai/xlnet.git เสร็จแล้วสร้างโฟลเดอร์ใหม่ชื่อ tf_record_out
 
-โครงสร้าง directory
+จัดโครงสร้าง directory ให้เป็นแบบนี้
 
 ```
 preprocessed_thaiwikitext/
@@ -54,7 +54,7 @@ python data_utils.py \
 	--num_predict=85 \
 	--uncased=False
 ```
-เสร็จแล้วจะได้ไฟล์ออกมาในโฟลเดอร์ `tf_record_out` แบบนี้
+รันเสร็จแล้วจะได้ไฟล์ออกมาในโฟลเดอร์ `tf_record_out` แบบนี้
 ```
 tf_record_out\
     |--->corpus_info.json	
