@@ -22,6 +22,7 @@ spm.SentencePieceTrainer.Train('--input=preprocessed_thaiwikitext/thaiwikitext_s
 --shuffle_input_sentence --model_prefix=thaiwiki')
 ```
 ## 2.1 Create tfrecord
+ลง tf version 1.13.1: `pip install tensorflow==1.13.1` ให้ตรงกันกับที่เจ้าของ xlnet เค้าใช้ (tensorflow เฉยๆนะจ๊ะไม่ใช่ tensorflow-gpu)
 
 clone xlnet repo: git clone https://github.com/zihangdai/xlnet.git เสร็จแล้วสร้างโฟลเดอร์ใหม่ชื่อ tf_record_out
 
