@@ -121,7 +121,7 @@ with tf.Session(TPU_ADDRESS) as session:
 สิ่งที่เราต้องการคือสตริง `TPU_ADDRESS` ที่จะใช้ตอนเทรน
 
 ## 3.3 เทรน
-คำสั่งเทรน
+คำสั่งเทรน โมมาจาก https://github.com/ymcui/Chinese-PreTrained-XLNet/blob/master/README_EN.md
 ```
 python train.py \
 	--record_info_dir=../tf_record_out/tfrecords \
@@ -153,7 +153,12 @@ python train.py \
 	--learning_rate=1e-4 \
 	--dropout=0.1 \
 	--dropatt=0.1 \
-	--tpu='grpc://10.27.119.98:8470' \  (copy from TPU_ADDRESS)
+	--tpu='grpc://10.27.119.98:8470' \ 
 	--use_tpu=True
 ```
 
+โปรดสังเกต `seq_len`, `reuse_len`, `mask_alpha`, `mask_beta`, `num_predict`, `uncased`, `bi_data` ตรงกันเป๊ะกับตอนสร้าง tfrecord ต้องตรงกันนะครับไม่งั้น error แน่ๆ ส่วน `tpu` ให้ก๊อปมาจาก `TPU_ADDRESS` ในขั้นตอนที่แล้ว option อื่นๆเป็นโครงสร้างของโมเดลเช่นจำนวนเลเยอร์ และพวก hyperparameter ในการเทรน 
+
+และสังเกตตรง `record_info_dir` มันเป็น local path ไปหาโฟลเดอร์ที่เราสร้าง tfrecord เอาไว้ อันนี้ต้องเป็น path local นะ ถึงแม้ว่าเราจะอัปโหลดดาต้าไปไว้บน bucket แล้วก็ตาม ดูตรงบรรทัดที่ 45 ใน `train.py` เค้าจะเขียนไว้เลยว่า "Path to local directory containing `record_info-lm.json`" ก็คือไอ้ไฟล์ชื่อ `record_info-train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.json` นั้นเอง ไฟล์ .json อันนี้ต้องอยู่ใน local ส่วนไฟล์ .tfrecords อ่ะต้องไปอยู่บน bucket นั่นแหละครับ debug กันเป็นวันๆ ก็ไอ้ตรงนี้แหละ T_T
+
+เทรนด้วย config แบบนี้จะได้ความเร็วที่ประมาณ 1.85 steps/s. เทรนทั้งหมด 2 ล้าน step ก็ไม่นานเท่าไหร่แค่ประมาณ 12 วัน แต่เอาจริงๆคอยดู loss ถ้ามันไม่ลงแล้วก็เอา checkpoint ล่าสุดไปใช้ได้เลยครับ ถ้าเทรนเสร็จจะเอา weight มาปล่อยนะครับ
