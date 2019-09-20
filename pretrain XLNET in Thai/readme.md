@@ -179,7 +179,7 @@ xlnet/ (repo ที่แก้ไข data_utils.py และ modeling.py ตา
 tf_record_out/
    |----->corpus_info.json
    |----->tfrecords/
-            |----->record_info-train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.json
+            |----->record_info-train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.json (แก้ path เป็น bucket ใหม่แล้ว)
 	    |----->train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.tfrecords
 thaiwiki.model (มาจากข้อ 1.2)
 thaiwiki.vocab (มาจากข้อ 1.2)
