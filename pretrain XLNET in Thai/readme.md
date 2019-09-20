@@ -1,7 +1,7 @@
 # วิธีการ pretrain XLNET สำหรับภาษาไทย
 
 ใช้ Colab TPU เทรน เพราะว่าถ้าเป็น GPU แรมไม่พอ T_T ต้องปรับเป็นโมเดลเล็ก (เล็กกว่า xlnet-base) และความยาวของ sequence input เหลือแค่ 128
-แต่ถ้าใช้ TPU (Colab เป็น TPU v2) สามารถเทรนโมเดลขนาด(เกือบ)เท่า xlnet-base ได้ ที่ความยาวอินพุต 512 เต็มๆ ถ้าจะเทรน xlnet-large คงต้องใช้ Cloud TPU v3 แบบจ่ายตังค์ (ขอติดไว้ภาค 2 ถ้าทำสำเร็จนะ)
+แต่ถ้าใช้ TPU (Colab เป็น TPU v2) สามารถเทรนโมเดลขนาด(เกือบ)เท่า xlnet-base ได้ ที่ความยาวอินพุต 512 เต็มๆ ถ้าจะเทรน xlnet-large คงต้องใช้ Cloud TPU v3 แบบจ่ายตังค์
 
 ## 1.1 Get and prepare training data
 
@@ -162,4 +162,92 @@ python train.py \
 
 และสังเกตตรง `record_info_dir` มันเป็น local path ไปหาโฟลเดอร์ที่เราสร้าง tfrecord เอาไว้ อันนี้ต้องเป็น path local นะ ถึงแม้ว่าเราจะอัปโหลดดาต้าไปไว้บน bucket แล้วก็ตาม ดูตรงบรรทัดที่ 45 ใน `train.py` เค้าจะเขียนไว้เลยว่า "Path to local directory containing `record_info-lm.json`" ก็คือไอ้ไฟล์ชื่อ `record_info-train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.json` นั้นเอง ไฟล์ .json อันนี้ต้องอยู่ใน local ส่วนไฟล์ .tfrecords อ่ะต้องไปอยู่บน bucket นั่นแหละครับ debug กันเป็นวันๆ ก็ไอ้ตรงนี้แหละ T_T
 
-เทรนด้วย config แบบนี้จะได้ความเร็วที่ประมาณ 1.85 steps/s. เทรนทั้งหมด 2 ล้าน step ก็ไม่นานเท่าไหร่แค่ประมาณ 12 วัน แต่เอาจริงๆคอยดู loss ถ้ามันไม่ลงแล้วก็เอา checkpoint ล่าสุดไปใช้ได้เลยครับ ถ้าเทรนเสร็จจะเอา weight มาปล่อยนะครับ
+เทรนด้วย config แบบนี้จะได้ความเร็วที่ประมาณ 1.85 steps/s. เทรนทั้งหมด 2 ล้าน step ก็ไม่นานเท่าไหร่แค่ประมาณ 12 วัน แต่เอาจริงๆคอยดู loss ถ้ามันไม่ลงแล้วก็เอา checkpoint ล่าสุดไปใช้ได้เลยครับ
+
+## Update เทรนด้วย cloud TPU แบบจ่ายตังค์ 
+การเทรนด้วย cloud TPU ของจริงที่ไม่ใช่ Colab ทำดังต่อไปนี้
+
+### A.1 สร้าง bucket
+ถ้าจะเทรนโมเดลที่มีขนาดใหญ่กว่า xlnet-base ต้องใช้ TPU v3 ที่มีแรม core ละ 16 GB (แต่ก็ไม่พอเทรน xlnet-large ตัวเต็มอยู่ดี ได้แค่ระหว่าง base กับ large เลยขอเรียกว่า xlnet-mid ละกัน ใครใช้ TPU pod ได้ส่ง PR มาดูเป็นบุญตาหน่อยนะครับ)
+
+สิ่งสำคัญในการสร้าง bucket คือต้องอยู่ zone เดียวกันกับตัว TPU v3 ซึ่งมีแค่สองโซนให้เลือกคือ us-central1, europe-west4 และอัน us ถูกกว่า ดังนั้นผมจึงสร้าง bucket ที่ `us-central1-a` ละกัน เสร็จแล้วก็จัดโครงสร้างใน bucket ให้เป็นตามนี้
+
+```
+preprocessed_thaiwikitext/
+   |----->thaiwikitext_sentseg.txt
+xlnet/ (repo ที่แก้ไข data_utils.py และ modeling.py ตามข้างต้นแล้ว)
+tf_record_out/
+   |----->corpus_info.json
+   |----->tfrecords/
+            |----->record_info-train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.json
+	    |----->train-0-0.bsz-32.seqlen-512.reuse-256.bi.alpha-6.beta-1.fnp-85.tfrecords
+thaiwiki.model (มาจากข้อ 1.2)
+thaiwiki.vocab (มาจากข้อ 1.2)
+```
+
+### A.2 สร้าง TPU
+การสร้าง TPU นั้น เราสามารถใช้ utility ที่่ชื่อว่า ctpu มันจะสร้างทั้ง tpu node และ VM ที่ชื่อเดียวกันขึ้นมาพร้อมกันเลย โดย VM ก็จะลง TF มาให้แล้วเรียบร้อย คำสั่งต่อไปนี้พิมพ์ใน cloud shell (ไอคอนที่เป็นรูป >_ ตรงขวาบนของหน้า GCP console)
+
+```
+ctpu up --zone us-central1-a --tf-version 1.13 --preemptible --disk-size-gb 50 --tpu-size v3-8 --name <NAME>
+```
+สังเกตว่า tf เอาเวอร์ชั่น 1.13 เลือกขนาด TPU เป็น v3-8 ซึ่งใหญ่สุดแล้วที่ไม่ใช่ pod zone ตรงกับของ bucket และ preemptible หมายถึงว่า instance ของเราจะรันได้แค่นานสุดครั้งละ 24 ชม. และอาจจะถูก stop เมื่อไหร่ก็ได้ แลกกับราคาต่อชั่วโมงจาก $8 เหลือ $2.4
+
+หมายเหตุ ผมได้พยายามลองสร้าง VM กับ TPU แยกกันโดยใช้ GUI แล้วปรากฎว่า TPU ไม่สามารถเขียนใส่ bucket ได้ แม้ว่าจะทำตามวิธีใน https://cloud.google.com/tpu/docs/storage-buckets#storage_access แล้วก็ตาม เลยใช้เป็นแบบใช้ ctpu ที่จัดการเรื่อง permission ให้อัตโนมัติ
+
+### A.3 เทรน
+พอ ctpu สร้าง VM+TPU ใหม่ให้เราแล้ว มันจะ ssh เข้าไปใน VM ให้เลย สังเกต prompt จะเปลี่ยนเป็น @ชื่อที่เราตั้งให้ TPU พอเข้ามาแล้ว ลง sentencepiece ก่อน
+```
+pip install sentencepiece
+```
+เสร็จแล้วสร้างโฟลเดอร์ใหม่ cd เข้าไปแล้วดาวโหลดลงมาทั้ง bucket เลย
+```
+gsutil cp -r gs://<bucket-name/* .
+```
+แล้วก็เทรนโลด
+
+```
+cd xlnet
+
+python train.py \
+	--record_info_dir=../tf_record_out/tfrecords \
+	--model_dir='gs://<bucket-name>/xlnet' \
+	--train_batch_size=32 \
+	--num_core_per_host=8 \
+	--seq_len=512 \
+	--reuse_len=256 \
+	--mem_len=384 \
+	--perm_size=256 \
+	--n_layer=16 \
+	--d_model=1024 \
+	--d_embed=1024 \
+	--n_head=12 \
+	--d_head=64 \
+	--d_inner=3072 \
+	--mask_alpha=6 \
+	--mask_beta=1 \
+	--num_predict=85 \
+	--uncased=False \
+	--bi_data=True \
+	--untie_r=True \
+	--train_steps=2000000 \
+	--save_steps=20000 \
+	--warmup_steps=20000 \
+	--max_save=20 \
+	--weight_decay=0.01 \
+	--adam_epsilon=1e-6 \
+	--learning_rate=1e-4 \
+	--dropout=0.1 \
+	--dropatt=0.1 \
+	--tpu=$TPU_NAME \
+	--use_tpu=True
+```
+
+จะเห็นว่า โมเดลมันใหญ่กว่า base แต่ก็ไม่ถึง large เช่น `n_layer` เหลือแค่ 16 `d_inner` เหลือ 3072 และ `n_head` เหลือ 12
+
+หมายเหตุ เพื่อไม่ให้ process ถูก kill ถ้าเราล๊อกเอ้าท์ ให้รันคำสั่ง train ใน shell tmux พอเราเปิดเครื่องเราใหม่ สามารถล๊อกอินกลับเข้าไปใน VM ได้ด้วยคำสั่ง (พิมพ์ใน cloud shell เหมือนตอนสร้าง)
+```
+ctpu up --zone=us-central1-a --name <NAME>
+```
+
+เสร็จแล้วรันคำสั่ง (ใน VM) `tmux attach` เพื่อเรียก shell ที่เราเทรนอยู่กลับมา
